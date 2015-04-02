@@ -17,7 +17,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#if !WIN8METRO
 namespace SharpDX.Direct3D11
 {
     public partial class EffectBlendVariable
@@ -29,8 +28,9 @@ namespace SharpDX.Direct3D11
         /// <unmanaged>HRESULT ID3D10EffectBlendVariable::GetBlendState([None] int Index,[Out] ID3D10BlendState** ppBlendState)</unmanaged>
         public SharpDX.Direct3D11.BlendState GetBlendState()
         {
-            return GetBlendState(0);
+            SharpDX.Direct3D11.BlendState state;
+            GetBlendState(0, out state);
+            return state;
         }
     }
 }
-#endif

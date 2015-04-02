@@ -17,7 +17,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#if !WIN8METRO
 using System;
 
 namespace SharpDX.Direct3D11
@@ -31,8 +30,9 @@ namespace SharpDX.Direct3D11
         /// <unmanaged>HRESULT ID3D10EffectRasterizerVariable::GetRasterizerState([None] int Index,[Out] ID3D10RasterizerState** ppRasterizerState)</unmanaged>
         public SharpDX.Direct3D11.RasterizerState GetRasterizerState()
         {
-            return GetRasterizerState(0);            
+            SharpDX.Direct3D11.RasterizerState state;
+            GetRasterizerState(0, out state);
+            return state;            
         }      
     }
 }
-#endif

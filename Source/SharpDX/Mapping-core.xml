@@ -26,25 +26,13 @@
   <namespace>SharpDX</namespace>
   <assembly>SharpDX</assembly>
 
-  <ifdef name="DIRECTX11_1">
-    <include file="objidlbase.h" namespace="SharpDX.Win32" output="Win32">
-      <attach>STATSTG</attach>
-      <attach>tagLOCKTYPE</attach>
-      <attach>LOCKTYPE</attach>
-      <attach>ISequentialStream</attach>
-      <attach>IStream</attach>
-    </include>
-  </ifdef>
-
-  <ifndef name="DIRECTX11_1">
-    <include file="objidl.h" namespace="SharpDX.Win32" output="Win32">
-      <attach>STATSTG</attach>
-      <attach>tagLOCKTYPE</attach>
-      <attach>LOCKTYPE</attach>
-      <attach>ISequentialStream</attach>
-      <attach>IStream</attach>
-    </include>
-  </ifndef>
+  <include file="objidlbase.h" namespace="SharpDX.Win32" output="Win32">
+    <attach>STATSTG</attach>
+    <attach>tagLOCKTYPE</attach>
+    <attach>LOCKTYPE</attach>
+    <attach>ISequentialStream</attach>
+    <attach>IStream</attach>
+  </include>
 
   <include file="wtypes.h" namespace="SharpDX.Win32" output="Win32">
     <attach>tagSTGC</attach>
@@ -57,6 +45,7 @@
   <!-- SharpDX global naming -->
   <naming>
     <short name="ASPECT">Aspect</short>
+    <short name="BYTECODE">Bytecode</short>
     <short name="HULL">Hull</short>
     <short name="VERTEX">Vertex</short>
     <short name="RATIONAL">Rational</short>
@@ -90,13 +79,16 @@
     <short name="CHECKER">Checker</short>
     <short name="CLEANUP">Cleanup</short>
     <short name="CLEAN">Clean</short>
+    <short name="ALLOCATION">Allocation</short>
     <short name="ALL">All</short>
     <short name="DATA">Data</short>
     <short name="PREFER">Prefer</short>
     <short name="EMPTY">Empty</short>
     <short name="FULLY">Fully</short>
     <short name="FULL">Full</short>
+    <short name="VBV">VertexBufferView</short>
     <short name="VB">VertexBuffer</short>
+    <short name="IBV">IndexBufferView</short>
     <short name="IB">IndexBuffer</short>
     <short name="CHECKING">Checking</short>
     <short name="CHECK">Check</short>
@@ -264,6 +256,7 @@
     <short name="UNEXPECTED">Unexpected</short>
     <short name="USAGE">Usage</short>
     <short name="NULL">Null</short>
+    <short name="CONSTANTS">Constants</short>
     <short name="CONSTANT">Constant</short>
     <short name="LARGE">Large</short>
     <short name="LAST">Last</short>
@@ -296,6 +289,7 @@
     <short name="DESCRIPTOR">Descriptor</short>
     <short name="DESCRIPTION">Description</short>
     <short name="DESC">Description</short>
+    <short name="CBV">ConstantBufferView</short>
     <short name="CBUFFER">ConstantBuffer</short>
     <short name="TBUFFER">TextureBuffer</short>
     <short name="BUFFEREX">ExtendedBuffer</short>
@@ -365,6 +359,7 @@
     <short name="READER">Reader</short>
     <short name="SOURCE">Source</short>
     <short name="SOLID">Solid</short>
+    <short name="SOV">StreamOutputView</short>
     <short name="SO">StreamOutput</short>
     <short name="OP">Operation</short>
     <short name="OPAQUE">Opaque</short>
@@ -550,9 +545,7 @@
     <bind from="D3DRECT" to="SharpDX.Mathematics.Interop.RawRectangle" />
 
     <!-- DirectX 11.2 structure -->
-    <ifdef name="DIRECTX11_2">
-      <bind from="DXGI_MATRIX_3X2_F" to="SharpDX.Mathematics.Interop.RawMatrix3x2" />
-    </ifdef>
+    <bind from="DXGI_MATRIX_3X2_F" to="SharpDX.Mathematics.Interop.RawMatrix3x2" />
 
     <!-- Win32 bindings -->
     <bind from="INT_PTR" to="System.IntPtr" />
@@ -694,13 +687,7 @@
     <map method=".*::GetGlyphIndicesW" name="GetGlyphIndices" />
 
     <!-- Map IStream -->
-    <ifdef name="DIRECTX11_1">
-      <context>objidlbase</context>
-    </ifdef>
-    <ifndef name="DIRECTX11_1">
-      <context>objidl</context>
-    </ifndef>
-
+    <context>objidlbase</context>
     <context>wtypes</context>
     <map struct="STATSTG" name="StorageStatistics" />
 

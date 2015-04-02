@@ -45,7 +45,6 @@
 
 using System.Diagnostics;
 using SharpDX.Mathematics.Interop;
-#if !W8CORE
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -101,7 +100,7 @@ namespace SharpDX.Windows
             ResizeRedraw = true;
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
 
-            Icon = SharpDX.Properties.Resources.logo;
+            Icon = Desktop.Properties.Resources.logo;
 
             previousWindowState = FormWindowState.Normal;
             AllowUserResizing = true;
@@ -450,4 +449,3 @@ namespace SharpDX.Windows
         }
     }
 }
-#endif

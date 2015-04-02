@@ -25,13 +25,13 @@
   <PropertyGroup>
     <SharpDXRepo>$(MSBuildThisFileDirectory)..</SharpDXRepo>
     <SharDXNugetPackages>$(MSBuildThisFileDirectory)Packages</SharDXNugetPackages>
-    <SharpDXSolution>$(SharpDXRepo)\SharpDX.sln</SharpDXSolution>
     <GitExe>"C:\Program Files (x86)\Git\bin\git.exe"</GitExe>
     <ExtensionTasksPath>$(SharpDXRepo)\External\MSBuildExtensionPack\</ExtensionTasksPath>
     <BuildSignedSharpDX>true</BuildSignedSharpDX>
     <SharedAssemblyInfoFilePath>$(SharpDXRepo)\Source\SharedAssemblyInfo.cs</SharedAssemblyInfoFilePath>
     <SharedAssemblyInfo>$([System.IO.File]::ReadAllText($(SharedAssemblyInfoFilePath)))</SharedAssemblyInfo>
-    <SharpDXAssemblyVersion>$([System.Text.RegularExpressions.Regex]::Match($(SharedAssemblyInfo), `AssemblyVersion\("(.*)"`).Groups[1].Value)</SharpDXAssemblyVersion>
+	<SharpDXAssemblyPostFixVersion>-alpha01</SharpDXAssemblyPostFixVersion>
+    <SharpDXAssemblyVersion>$([System.Text.RegularExpressions.Regex]::Match($(SharedAssemblyInfo), `AssemblyVersion\("(.*)"`).Groups[1].Value)$(SharpDXAssemblyPostFixVersion)</SharpDXAssemblyVersion>
     <SharpDXDevZip>$(MSBuildThisFileDirectory)\SharpDX-SDK-LatestDev.exe</SharpDXDevZip>
     <SharpDXReleaseZip>$(MSBuildThisFileDirectory)\SharpDX-SDK-$(SharpDXAssemblyVersion).exe</SharpDXReleaseZip>
     <SharpDXLocalUpload>C:\inetpub\wwwroot\sharpdx\upload</SharpDXLocalUpload>
@@ -67,7 +67,7 @@
     <ItemGroup>
       <SharpDXNuspecs Include="$(SharpDXRepo)\Source\**\*.nuspec"/>
     </ItemGroup>
-    <Exec Command="nuget.exe pack -OutputDirectory $(SharDXNugetPackages) -Properties version=$(SharpDXAssemblyVersion) %(SharpDXNuspecs.Identity)"/>
+    <Exec Command="nuget.exe pack -OutputDirectory $(SharDXNugetPackages) -Properties version=$(SharpDXAssemblyVersion) -Symbols %(SharpDXNuspecs.Identity)"/>
   </Target>
 
   <Target Name="NugetPush">
@@ -79,25 +79,9 @@
   
   <Target Name="Build">
     <!--Build all targets / platforms-->
-
     <Exec Command="RMDIR /Q /S $(SharpDXRepo)\Bin"/>
-
-    <CallTarget Targets="BuildSigned" Condition="'$(BuildSignedSharpDX)' == 'true'"/>
-    <CallTarget Targets="DesktopNet20" />
-    <CallTarget Targets="DesktopNet40" />
-    <CallTarget Targets="MetroWin8" />
-    <CallTarget Targets="DesktopDx112" />
-    <CallTarget Targets="WP8-x86" />
-    <CallTarget Targets="WP8-ARM" />
-    <CallTarget Targets="WP81" />
-  </Target>
-
-  <Target Name="BuildSigned">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=Net20;SharpDXSign=true"/>
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=Net40;SharpDXSign=true"/>
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=Win8;SharpDXSign=true"/>
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=DIRECTX11_2;SharpDXSign=true"/>
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=WP81;SharpDXSign=true"/>
+    <MSBuild Targets="Clean;Build" Projects="$(SharpDXRepo)\SharpDX-Desktop.sln" Properties="Configuration=Release;Platform=Any CPU;SharpDXSign=true"/>
+    <MSBuild Targets="Clean;Build" Projects="$(SharpDXRepo)\SharpDX-StoreApp.sln" Properties="Configuration=Release;Platform=Any CPU;SharpDXSign=true"/>
   </Target>
 
   <!--Custom task for checking certification result (fail or pass), the project is excluded from solution build - needs to be rebuilt manually when needed-->
@@ -149,34 +133,6 @@
     <VerifyCertificationResultTask File="$(SharpDXRepo)\Source\CertificationTests\Results\Test.WP81.xml" />
   </Target>
 
-  <Target Name="DesktopNet20">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=Net20"/>
-  </Target>
-
-  <Target Name="DesktopNet40">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=Net40"/>
-  </Target>
-
-  <Target Name="MetroWin8">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=Win8"/>
-  </Target>
-
-  <Target Name="DesktopDx112">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=DIRECTX11_2"/>
-  </Target>
-
-  <Target Name="WP8-x86">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=WP8-x86"/>
-  </Target>
-
-  <Target Name="WP8-ARM">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=WP8-ARM"/>
-  </Target>
-
-  <Target Name="WP81">
-    <MSBuild Targets="Clean;Build" Projects="$(SharpDXSolution)" Properties="Configuration=Release;Platform=WP81"/>
-  </Target>
-
   <Target Name="GitCheckout">
     <Exec WorkingDirectory="$(SharpDXRepo)" Command='$(GitExe) checkout --merge "master_integration"'/>
     <Exec WorkingDirectory="$(SharpDXRepo)" Command='$(GitExe) pull --rebase origin'/>
@@ -212,12 +168,12 @@
 
   <Target Name="ZipBuild">
     <Delete Files="$(SharpDXDevZip)"/>
-    <Exec WorkingDirectory="$(SharpDXRepo)" Command='$(SharpDXRepo)\External\7-Zip\7z.exe a -sfx7z.sfx -xr!External -xr!*.check -xr!*.pdb -xr!*.lib -xr!*.pri -xr!*.exp $(SharpDXDevZip) Bin\*\*.* Build\SharpDX.targets License.txt CommitLog.txt Readme.md'/>
+    <Exec WorkingDirectory="$(SharpDXRepo)" Command='$(SharpDXRepo)\External\7-Zip\7z.exe a -sfx7z.sfx -xr!External -xr!*.check -xr!*.pdb -xr!*.lib -xr!*.pri -xr!*.exp $(SharpDXDevZip) Bin\*\*.* License.txt ReleaseNotes.md Readme.md'/>
   </Target>
 
   <Target Name="ZipRelease">
     <Delete Files="$(SharpDXReleaseZip)"/>
-    <Exec WorkingDirectory="$(SharpDXRepo)" Command='$(SharpDXRepo)\External\7-Zip\7z.exe a -sfx7z.sfx -xr!External -xr!*.check -xr!*.pdb -xr!*.lib -xr!*.pri -xr!*.exp $(SharpDXReleaseZip) Bin\*\*.* Build\SharpDX.targets License.txt ReleaseNotes.html Readme.md'/>
+    <Exec WorkingDirectory="$(SharpDXRepo)" Command='$(SharpDXRepo)\External\7-Zip\7z.exe a -sfx7z.sfx -xr!External -xr!*.check -xr!*.pdb -xr!*.lib -xr!*.pri -xr!*.exp $(SharpDXReleaseZip) Bin\*\*.*  License.txt ReleaseNotes.md Readme.md'/>
   </Target>
 
   <Target Name="LocalCopy">

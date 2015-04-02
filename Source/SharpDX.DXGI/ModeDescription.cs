@@ -37,5 +37,14 @@ namespace SharpDX.DXGI
             this.ScanlineOrdering = DisplayModeScanlineOrder.Unspecified;
             this.Scaling = DisplayModeScaling.Unspecified;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ModeDescription"/> struct.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        public ModeDescription(Format format) : this()
+        {
+            Format = format;
+        }
     }
 }
